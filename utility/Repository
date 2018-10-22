@@ -1,0 +1,44 @@
+from infrastructure.log.Logger import warn
+
+
+class Repository(object):
+
+    def __init__(self):
+        self._obj_dict = {}
+        self._id_list = []
+
+    def _has_key(self, key):
+        return self._obj_dict.has_key(key)
+
+    def add(self, key, obj):
+        if self._has_key(key):
+            warn('already has resource, key = %s' % (key,))
+        self._obj_dict[key] = obj
+        return True
+
+    def find(self, key):
+        obj = self._obj_dict.get(key)
+        return obj
+
+    def delete(self, key):
+        if self._has_key(key):
+            del self._obj_dict[key]
+            return True
+        warn('delete fail, key = %s not exist' % (key,))
+        return True
+
+    def clear(self):
+        self._obj_dict.clear()
+        self._id_list = []
+
+    def items(self):
+        return self._obj_dict.itervalues()
+
+    def values(self):
+        return self._obj_dict.values()
+
+    def keys(self):
+        return self._obj_dict.keys()
+
+    def update(self, key, obj):
+        self._obj_dict.update({key: obj})
