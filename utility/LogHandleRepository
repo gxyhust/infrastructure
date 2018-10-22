@@ -1,0 +1,10 @@
+# coding=utf-8
+from infrastructure.util.Singleton import Singleton
+from infrastructure.util.ObjectRepository import ObjectRepository
+
+
+@Singleton
+class LogHandleRepository(ObjectRepository):
+
+    def __init__(self):
+        ObjectRepository.__init__(self)
