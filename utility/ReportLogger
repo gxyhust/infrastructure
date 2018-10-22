@@ -1,0 +1,67 @@
+import json
+from logging import DEBUG
+import logging
+from logging.handlers import RotatingFileHandler
+import os
+
+from infrastructure.log.LogHandleRepository import LogHandleRepository
+
+
+class ReportLogger(object):
+
+    @staticmethod
+    def _create_handle(fileName):
+        log_file = os.path.abspath(os.path.dirname(__file__) + '../../../log/{}'.format(fileName))
+        if not os.path.exists(log_file):
+            f = open(log_file, 'w')
+            f.close()
+        rthandler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=5)
+        rthandler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
+        rthandler.setFormatter(formatter)
+        logging.getLogger('').addHandler(rthandler)
+        console = logging.StreamHandler()
+        console.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(name)-1s: %(levelname)-8s %(message)s')
+        console.setFormatter(formatter)
+        logging.getLogger('').addHandler(console)
+        logging.getLogger('').setLevel(DEBUG)
+        LogHandleRepository().add(fileName, logging)
+        return logging
+
+    @staticmethod
+    def _get_log_handle(fileName):
+        if not LogHandleRepository().find(fileName):
+            return ReportLogger._create_handle(fileName)
+        return LogHandleRepository().find(fileName)
+
+    @staticmethod
+    def _log(logger, t, msg, isFormatToJson=True):
+        try:
+            if not isFormatToJson:
+                return t(msg)
+            jsonDumpsINdentStr = json.dumps(msg, indent=1)
+            return t(os.linesep + jsonDumpsINdentStr + os.linesep * 2)
+        except Exception, e:
+            logger.error(e)
+            logger.error('Msg must be json format')
+
+    @staticmethod
+    def debug(fileName, msg, isFormatToJson=False):
+        logger = ReportLogger._get_log_handle(fileName)
+        return ReportLogger._log(logger, logger.debug, msg, isFormatToJson)
+
+    @staticmethod
+    def error(fileName, msg, isFormatToJson=False):
+        logger = ReportLogger._get_log_handle(fileName)
+        return ReportLogger._log(logger, logger.error, msg, isFormatToJson)
+
+    @staticmethod
+    def info(fileName, msg, isFormatToJson=False):
+        logger = ReportLogger._get_log_handle(fileName)
+        return ReportLogger._log(logger, logger.info, msg, isFormatToJson)
+
+    @staticmethod
+    def warn(fileName, msg, isFormatToJson=False):
+        logger = ReportLogger._get_log_handle(fileName)
+        return ReportLogger._log(logger, logger.warn, msg, isFormatToJson)
