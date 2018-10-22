@@ -1,0 +1,9 @@
+def Singleton(cls):
+  instanceDict = {}
+  
+  def _singleton(*args,**kwargs): 
+    if cls not in instanceDict:
+      return cls(*args, **kwargs)
+     return instanceDict[cls]
+    
+   return _singleton
