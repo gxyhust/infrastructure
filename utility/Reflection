@@ -1,0 +1,47 @@
+# coding=utf-8
+import os
+import traceback
+
+
+class Reflection:
+    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+
+    @staticmethod
+    def create_obj(packetName, className, *args):
+        try:
+            module = __import__(packetName, globals(), locals(), [className])
+            obj = getattr(module, className)
+            print obj, args
+            return obj(*args)
+        except Exception as e:
+            print traceback.print_exc()
+            raise (Exception("create %s exception:%s" % (className, e)))
+
+    @staticmethod
+    def invoke(obj, methodName, *args):
+        method = getattr(obj, methodName)
+        return method(*args)
+
+    @staticmethod
+    def get_class_path(classRootPath, className):
+        for path, _, files in os.walk(classRootPath):
+            for f in files:
+                if f.split('.')[0] == className:
+                    return '{0}/{1}'.format(path, f.split('.')[0])
+        raise Exception("class name %s is not exit!" % className)
+
+    @staticmethod
+    def format_to_pkg_name(classPath):
+        domainDir = classPath.replace('\\', '.')
+        domainDir = domainDir.replace('/', '.')
+        return "".join(['domain', domainDir.split('domain')[1]])
+
+    @staticmethod
+    def create_obj_by_name(classRootPath, className, attr):
+        classPath = Reflection.get_class_path(classRootPath, className)
+        packetName = Reflection.format_to_pkg_name(classPath)
+        return Reflection.create_obj(packetName, className, attr)
+
+if __name__ == '__main__':
+    obj = Reflection.create_obj('domain.cell.Cp', 'Cp', 'aaa')
+    Reflection.invoke(obj, 'get_cpid')
