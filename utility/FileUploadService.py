@@ -11,7 +11,7 @@ import sys
 import os
 import simplejson
 
-class UploadImageHandler(tornado.web.RequestHandler):
+class FileUploadService(tornado.web.RequestHandler):
     def set_default_headers(self):
             print "setting headers!!!"
             self.set_header("Access-Control-Allow-Origin", "*")
