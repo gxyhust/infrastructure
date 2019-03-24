@@ -11,7 +11,7 @@ import sys
 import os
 import simplejson
 
-class FileUploadService(tornado.web.RequestHandler):
+class UploadImageHandler(tornado.web.RequestHandler):
     def set_default_headers(self):
             print "setting headers!!!"
             self.set_header("Access-Control-Allow-Origin", "*")
@@ -57,13 +57,14 @@ class Application(tornado.web.Application):
 
 
 if __name__ == "__main__":
+    port = 82
+    ip = '127.0.0.1'
     tornado.options.parse_command_line()
     application = Application()
     http_server = tornado.httpserver.HTTPServer(application, xheaders=True)
-    port = 8889
     if len(sys.argv) > 1:
         port = int(sys.argv[1])
     http_server.listen(port)
     loop = tornado.ioloop.IOLoop.instance()
-    logging.info('File Server running on http://127.0.0.1:%d' % port)
+    logging.info('File Server running on http://{0}:{1}'.format(ip,port))
     loop.start()
